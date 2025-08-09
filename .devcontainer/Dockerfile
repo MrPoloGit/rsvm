@@ -1,43 +1,50 @@
-# Use Alpine-based devcontainer base image for consistency
-FROM mcr.microsoft.com/devcontainers/base:alpine
+# Use Ubuntu as base image instead of Microsoft's container
+FROM ubuntu:22.04
 
 # Set environment variables
-ENV LANG C.UTF-8
-ARG INSTALL_ZSH="true"
+ENV LANG=C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies (Alpine uses apk instead of apt-get)
-RUN apk update && apk add --no-cache \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
     python3-dev \
-    py3-pip \
     sudo \
     wget \
+    curl \
     npm \
     git \
-    bash \
-    openssl \
-    shadow
-
-# Copy requirements file if it exists
-COPY sw_utils/requirements.txt /tmp/requirements.txt 2>/dev/null || echo "# No requirements" > /tmp/requirements.txt
-
-# Install Python dependencies
-RUN pip3 install -r /tmp/requirements.txt
-
-# Install the required tools
-RUN wget -O - https://raw.githubusercontent.com/sifferman/hdl-tool-installer/main/install | bash -s -- . --oss-cad-suite --zachjs-sv2v
-
-# Install netlistsvg tool
-RUN cd /opt && git clone https://github.com/nturley/netlistsvg
-RUN cd /opt/netlistsvg && npm install --legacy-peer-deps && npm install . -g
+    build-essential \
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    zsh \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create a user for running the container
-RUN useradd -m -s /bin/bash sv_user -G wheel
-RUN echo "sv_user:ilikehdl" | chpasswd
+RUN useradd -ms /bin/bash sv_user && \
+    echo "sv_user:ilikehdl" | chpasswd && \
+    usermod -aG sudo sv_user && \
+    echo "sv_user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Switch to the user
+# Switch to sv_user for installations
 USER sv_user
 WORKDIR /home/sv_user
 
-# Add tools to PATH in bashrc
-RUN echo 'export PATH="/workspaces/$(basename $PWD)/oss-cad-suite/bin:$PATH"' >> ~/.bashrc
-RUN echo 'export PATH="/workspaces/$(basename $PWD)/zachjs-sv2v:$PATH"' >> ~/.bashrc
+# Install Python dependencies (you'll need to copy requirements.txt or install specific packages)
+# RUN pip3 install -r sw_utils/requirements.txt
+
+# Install the HDL tools
+RUN wget -O - https://raw.githubusercontent.com/sifferman/hdl-tool-installer/main/install | bash -s -- . --oss-cad-suite --zachjs-sv2v
+
+# Install netlistsvg tool
+RUN cd /tmp && git clone https://github.com/nturley/netlistsvg && \
+    cd netlistsvg && npm install --legacy-peer-deps && \
+    sudo npm install . -g
+
+# Add tools to PATH
+ENV PATH="/home/sv_user/oss-cad-suite/bin:/home/sv_user/zachjs-sv2v:${PATH}"
+
+# Set up shell
+RUN sudo chsh -s /bin/zsh sv_user

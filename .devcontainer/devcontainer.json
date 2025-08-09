@@ -1,9 +1,17 @@
 {
+  "name": "SystemVerilog Development Environment",
   "build": {
     "dockerfile": "Dockerfile"
   },
   "features": {
-    // Add any extra features as needed
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "upgradePackages": false,
+      "username": "sv_user",
+      "userUid": "automatic",
+      "userGid": "automatic"
+    }
   },
   "customizations": {
     "vscode": {
@@ -21,8 +29,9 @@
     }
   },
   "remoteUser": "sv_user",
-  "postCreateCommand": "echo 'Container setup complete!'",
-  "mounts": [
-    "source=${localWorkspaceFolder},target=/workspaces/custom_sv_modules,type=bind,consistency=cached"
-  ]
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "postCreateCommand": "echo 'Development environment ready!'",
+  "forwardPorts": [],
+  "shutdownAction": "stopContainer"
 }

@@ -19,5 +19,10 @@
         "SimonSiefke.svg-preview"
       ]
     }
-  }
+  },
+  "remoteUser": "sv_user",
+  "postCreateCommand": "echo 'Container setup complete!'",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspaces/custom_sv_modules,type=bind,consistency=cached"
+  ]
 }

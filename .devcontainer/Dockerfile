@@ -1,21 +1,27 @@
-# Useful starting base
-FROM ghcr.io/ucsc-cse-x25/dockerimages:base
+# Use Alpine-based devcontainer base image for consistency
+FROM mcr.microsoft.com/devcontainers/base:alpine
 
 # Set environment variables
 ENV LANG C.UTF-8
 ARG INSTALL_ZSH="true"
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
+# Install dependencies (Alpine uses apk instead of apt-get)
+RUN apk update && apk add --no-cache \
     python3-dev \
+    py3-pip \
     sudo \
     wget \
     npm \
     git \
-    && rm -rf /var/lib/apt/lists/*
+    bash \
+    openssl \
+    shadow
+
+# Copy requirements file if it exists
+COPY sw_utils/requirements.txt /tmp/requirements.txt 2>/dev/null || echo "# No requirements" > /tmp/requirements.txt
 
 # Install Python dependencies
-RUN pip3 install -r sw_utils/requirements.txt
+RUN pip3 install -r /tmp/requirements.txt
 
 # Install the required tools
 RUN wget -O - https://raw.githubusercontent.com/sifferman/hdl-tool-installer/main/install | bash -s -- . --oss-cad-suite --zachjs-sv2v
@@ -25,9 +31,13 @@ RUN cd /opt && git clone https://github.com/nturley/netlistsvg
 RUN cd /opt/netlistsvg && npm install --legacy-peer-deps && npm install . -g
 
 # Create a user for running the container
-RUN useradd -ms /bin/bash sv_user -G sudo -p "$(openssl passwd -1 ilikehdl)"
-USER sv_user
+RUN useradd -m -s /bin/bash sv_user -G wheel
+RUN echo "sv_user:ilikehdl" | chpasswd
 
-# Ensure paths for tools are available
-RUN echo "$GITHUB_WORKSPACE/oss-cad-suite/bin" >> $GITHUB_PATH
-RUN echo "$GITHUB_WORKSPACE/zachjs-sv2v" >> $GITHUB_PATH
+# Switch to the user
+USER sv_user
+WORKDIR /home/sv_user
+
+# Add tools to PATH in bashrc
+RUN echo 'export PATH="/workspaces/$(basename $PWD)/oss-cad-suite/bin:$PATH"' >> ~/.bashrc
+RUN echo 'export PATH="/workspaces/$(basename $PWD)/zachjs-sv2v:$PATH"' >> ~/.bashrc

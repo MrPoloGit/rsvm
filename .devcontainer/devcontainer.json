@@ -1,18 +1,6 @@
 {
-  "name": "SystemVerilog Development Environment",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {
-      "installZsh": true,
-      "installOhMyZsh": true,
-      "upgradePackages": false,
-      "username": "sv_user",
-      "userUid": "automatic",
-      "userGid": "automatic"
-    }
-  },
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {},
   "customizations": {
     "vscode": {
       "extensions": [
@@ -28,10 +16,5 @@
       ]
     }
   },
-  "remoteUser": "sv_user",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "postCreateCommand": "echo 'Development environment ready!'",
-  "forwardPorts": [],
-  "shutdownAction": "stopContainer"
+  "postCreateCommand": "if [ -f sw_utils/requirements.txt ]; then pip3 install --no-cache-dir -r sw_utils/requirements.txt; fi"
 }

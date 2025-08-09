@@ -1,50 +1,65 @@
-# Use Ubuntu as base image instead of Microsoft's container
-FROM ubuntu:22.04
+# Use Alpine (musl). 
+FROM alpine:3.20
 
-# Set environment variables
-ENV LANG=C.UTF-8
+# Avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-dev \
-    sudo \
-    wget \
-    curl \
-    npm \
-    git \
-    build-essential \
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    zsh \
-    && rm -rf /var/lib/apt/lists/*
+# Basic deps + Python + dev tools + glibc-compat + bash (the installer uses bash)
+RUN apk add --no-cache \
+      bash \
+      coreutils \
+      findutils \
+      grep \
+      sed \
+      gawk \
+      make \
+      git \
+      wget \
+      curl \
+      ca-certificates \
+      tar \
+      xz \
+      unzip \
+      gzip \
+      patchelf \
+      libc6-compat \
+      gcompat \
+      shadow \
+      sudo \
+      python3 \
+      py3-pip \
+      python3-dev \
+      build-base
 
-# Create a user for running the container
-RUN useradd -ms /bin/bash sv_user && \
-    echo "sv_user:ilikehdl" | chpasswd && \
-    usermod -aG sudo sv_user && \
-    echo "sv_user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# Make a non-root user that Codespaces/VS Code likes
+# (uid 1000 is conventional; adjust if your host uses a different uid)
+RUN adduser -D -u 1000 vscode && \
+    echo "vscode ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/99_vscode && \
+    chmod 0440 /etc/sudoers.d/99_vscode
 
-# Switch to sv_user for installations
-USER sv_user
-WORKDIR /home/sv_user
+# Where we’ll install the HDL tools so PATH can be set globally
+ENV TOOL_DIR=/opt/tools
+RUN mkdir -p ${TOOL_DIR}
+WORKDIR ${TOOL_DIR}
 
-# Install Python dependencies (you'll need to copy requirements.txt or install specific packages)
-# RUN pip3 install -r sw_utils/requirements.txt
+# Install OSS CAD Suite and zachjs/sv2v using the provided installer
+# This mirrors:
+#   wget -O - https://raw.githubusercontent.com/sifferman/hdl-tool-installer/main/install | \
+#     bash -s -- . --oss-cad-suite --zachjs-sv2v
+RUN wget -O - https://raw.githubusercontent.com/sifferman/hdl-tool-installer/main/install \
+    | bash -s -- . --oss-cad-suite --zachjs-sv2v
 
-# Install the HDL tools
-RUN wget -O - https://raw.githubusercontent.com/sifferman/hdl-tool-installer/main/install | bash -s -- . --oss-cad-suite --zachjs-sv2v
+# Make them available on PATH for all users/shells
+ENV PATH="${TOOL_DIR}/oss-cad-suite/bin:${TOOL_DIR}/zachjs-sv2v:${PATH}"
 
-# Install netlistsvg tool
-RUN cd /tmp && git clone https://github.com/nturley/netlistsvg && \
-    cd netlistsvg && npm install --legacy-peer-deps && \
-    sudo npm install . -g
+# Nice-to-have: keep pip modern + don’t cache wheels to save space
+RUN python3 -m pip install --no-cache-dir --upgrade pip
 
-# Add tools to PATH
-ENV PATH="/home/sv_user/oss-cad-suite/bin:/home/sv_user/zachjs-sv2v:${PATH}"
+# Default workspace path Codespaces uses
+WORKDIR /workspaces
 
-# Set up shell
-RUN sudo chsh -s /bin/zsh sv_user
+# Switch to the non-root user by default
+USER vscode
+
+# By default, containers use /bin/sh; we prefer bash for a nicer shell
+SHELL ["/bin/bash", "-lc"]

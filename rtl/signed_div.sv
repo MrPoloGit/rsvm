@@ -8,7 +8,7 @@
 // 19         POSTOP, negate quotient (if necessary), and add remainder (if necessary)
 // 20         DONE,   wait for out_ready_i
 // -------------------------------------------
-module signed_fxp_div import config_pkg::*; #(
+module signed_div #(
     parameter DataWidth = 16
 ) (
     input                   clk_i,

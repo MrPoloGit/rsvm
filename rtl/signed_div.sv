@@ -9,19 +9,19 @@
 // 20         DONE,   wait for out_ready_i
 // -------------------------------------------
 module signed_div #(
-    parameter DataWidth = 16
+    parameter int DataWidth = 4
 ) (
-    input                   clk_i,
-    input                   rst_i,
+    input  logic                         clk_i,
+    input  logic                         rst_i,
 
-    output logic            in_ready_o,
-    input  logic            in_valid_i,
-    input  [DataWidth-1: 0] a_i,
-    input  [DataWidth-1: 0] b_i,
+    output logic                         in_ready_o,
+    input  logic                         in_valid_i,
+    input  logic signed [DataWidth-1: 0] a_i,
+    input  logic signed [DataWidth-1: 0] b_i,
 
-    input  logic            out_ready_i,
-    output logic            out_valid_o,
-    output [DataWidth-1: 0] y_o
+    output logic                         out_valid_o,
+    input  logic                         out_ready_i,
+    output logic signed [DataWidth-1: 0] y_o
 );
 
 typedef enum logic[3:0] {
@@ -72,12 +72,14 @@ always_comb begin
             if (in_valid_i) begin
                 // Handling divide by zero immediately to save time
                 if (a_i == '0 || b_i == '0)begin
+                    y_d = '0;
                     state_d = DONE;
+                end else begin
+                    a_d = a_i;
+                    b_d = b_i;
+                    iter_d = 0;
+                    state_d = NEG;
                 end
-                a_d = a_i;
-                b_d = b_i;
-                iter_d = 0;
-                state_d = NEG;
             end
         end
         NEG: begin
@@ -102,7 +104,7 @@ always_comb begin
         end
 
         CALC: begin
-            if (iter_q != 16) begin
+            if (iter_q != DataWidth) begin
                 // Shift Operation
                 {remainder_d, quotient_d} = {remainder_q, quotient_q} << 1;
 

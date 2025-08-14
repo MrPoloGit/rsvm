@@ -1,1 +1,3 @@
 .vscode/
+dump.fst
+verilator_dir

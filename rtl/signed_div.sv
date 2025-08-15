@@ -90,6 +90,7 @@ always_comb begin
         end
         NEG: begin
             // Convert to unsigned
+            // don't need if statement exactly, could do a ternary statement and a_is_negative_d = a_q[DataWidth-1]
             if (a_q[DataWidth-1]) begin
                 a_d = -a_q;
                 a_is_negative_d = 1;

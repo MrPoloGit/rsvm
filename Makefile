@@ -50,5 +50,5 @@ help:
 	@echo "  EXTRA_C_SOURCES=$(EXTRA_C_SOURCES)"
 
 all: 
-	make sim TOP=signed_div_tb
-	make sim TOP=unsigned_div_tb
+	chmod +x testall.sh
+	./testall.sh

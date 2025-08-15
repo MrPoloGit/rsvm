@@ -2,11 +2,10 @@
 // -------------------------------------------
 // Cycles       Operation
 // -------------------------------------------
-// 1          IDLE,   latch inputs
-// 2          PREOP,  negate divisor (if necessary), negate dividend (if necessary), setup numbers
-// 3-18       CALC,   shift, add/subtract, set bit operation
-// 19         POSTOP, negate quotient (if necessary), and add remainder (if necessary)
-// 20         DONE,   wait for out_ready_i
+// 1               IDLE,   latch inputs
+// 2               PREOP,  negate divisor (if necessary), negate dividend (if necessary), setup numbers
+// 3-(DataWidth+2) CALC,   shift, add/subtract, set bit operation, negate quotient (if necessary), and add remainder (if necessary)
+// (DataWidth+4)   DONE,   wait for out_ready_i
 // -------------------------------------------
 module signed_div #(
     parameter int DataWidth = 4, 
@@ -27,11 +26,10 @@ module signed_div #(
     output logic signed [DataWidth-1:0] y_o
 );
 
-typedef enum logic[3:0] {
+typedef enum logic[1:0] {
     IDLE,
     NEG,
     CALC,
-    POSTOP,
     DONE
 } state_t;
 
@@ -100,18 +98,17 @@ always_comb begin
                 b_is_negative_d = 1;
             end
 
-            // Initialize division parts
-            comp_b_d = -b_d;                     // Negate the absolute b_d
+            // Initialize division portions
+            comp_b_d = -b_d;
             /* verilator lint_off WIDTHTRUNC */
-            quotient_d = a_d;                    // Initialize quotient
+            quotient_d = a_d;
             /* verilator lint_on WIDTHTRUNC */
-            remainder_d = '0;                    // Initialize remainder to 0
-            iter_d = '0;                         // Start Iteration at 0
-            y_d = 0;                             // Clear accumulator
+            remainder_d = '0;
+            iter_d = '0;
+            y_d = 0;
 
             state_d = CALC;
         end
-
         CALC: begin
             /* verilator lint_off WIDTHEXPAND */
             if (iter_q < DataWidth) begin
@@ -126,24 +123,19 @@ always_comb begin
                 /* verilator lint_on WIDTHTRUNC */
 
                 // Set Bit
-                if (remainder_d[DataWidth]) quotient_d[0] = 0;
-                else                        quotient_d[0] = 1;
+                quotient_d[0] = ~remainder_d[DataWidth];
                 
                 // Increment
                 iter_d = iter_q + 1;
             end else begin
-                state_d = POSTOP;
+                // Final correction for non-restoring division
+                if (remainder_q[DataWidth]) remainder_d = remainder_q + b_q;
+
+                // Restore correct sign to which is saved initially
+                y_d = quotient_q;
+                if (a_is_negative_q ^ b_is_negative_q) y_d = -y_d;
+                state_d = DONE;
             end
-        end
-        POSTOP: begin
-            // Final correction for non-restoring division
-            if (remainder_q[DataWidth]) remainder_d = remainder_q + b_q;
-
-            // Restore correct sign to which is saved initially
-            y_d = quotient_q;
-            if (a_is_negative_q ^ b_is_negative_q) y_d = -y_d;
-
-            state_d = DONE;
         end
         DONE: begin
             out_valid_o = 1;
@@ -160,8 +152,6 @@ always_comb begin
                 state_d = IDLE;
             end
         end
-
-        default: state_d = IDLE;
     endcase
 end
 

@@ -15,7 +15,6 @@ MDIR := verilator_dir
 .PHONY: all sim build run lint clean help
 all: sim
 
-
 build:
 	verilator --binary \
 	  --Mdir $(MDIR) \

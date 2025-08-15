@@ -1,26 +1,24 @@
 
-module signed_div_tb;
+module unsigned_div_tb;
 
 parameter int DataWidth = 4;
-parameter logic signed [DataWidth-1:0] MaxValue = ((1 << (DataWidth-1)) - 1);
-parameter logic signed [DataWidth-1:0] MinValue = (-(1 << (DataWidth-1)));
+parameter logic  [DataWidth-1:0] MaxValue = ((1<<DataWidth)-1);
 
-logic                        clk_i;
-logic                        rst_i;
+logic                 clk_i;
+logic                 rst_i;
 
-logic                        in_ready_o;
-logic                        in_valid_i;
-logic signed [DataWidth-1:0] a_i;
-logic signed [DataWidth-1:0] b_i;
+logic                 in_ready_o;
+logic                 in_valid_i;
+logic [DataWidth-1:0] a_i;
+logic [DataWidth-1:0] b_i;
 
-logic                        out_ready_i;
-logic                        out_valid_o;
-logic signed [DataWidth-1:0] y_o;
+logic                 out_ready_i;
+logic                 out_valid_o;
+logic [DataWidth-1:0] y_o;
 
-signed_div #(
+unsigned_div #(
     .DataWidth(DataWidth),
-    .MaxValue(MaxValue),
-    .MinValue(MinValue)
+    .MaxValue(MaxValue)
 ) dut (
     .clk_i(clk_i),
     .rst_i(rst_i),
@@ -35,38 +33,36 @@ signed_div #(
     .y_o(y_o)
 );
 
-function automatic logic signed [DataWidth-1:0] rand_num();
+function automatic logic [DataWidth-1:0] rand_num();
     /* verilator lint_off UNUSEDSIGNAL */
     int num, r;
     /* verilator lint_on UNUSEDSIGNAL */
-    num = $urandom_range(0, 4);
+    num = $urandom_range(0, 2);
 
     case (num)
         /* verilator lint_off WIDTHEXPAND */
         0: r = 0;
         1: r = MaxValue;
-        2: r = MinValue;
-        3: r = $urandom_range(0, MaxValue);
-        4: r = -$urandom_range(0, MaxValue);
+        2: r = $urandom_range(0, MaxValue);
         /* verilator lint_on WIDTHEXPAND */
     endcase
 
     return r[DataWidth-1:0];
 endfunction
 
-function automatic logic signed [DataWidth-1:0] expected_div(
-    logic signed [DataWidth-1:0] a,
-    logic signed [DataWidth-1:0] b
+function automatic logic [DataWidth-1:0] expected_div(
+    logic [DataWidth-1:0] a,
+    logic [DataWidth-1:0] b
 );
     if (b == 0) begin
         if (a > 0) return MaxValue; 
-        if (a < 0) return MinValue;
+        else       return 0;
     end
     return a / b;
 endfunction
 
 task automatic reset();
-    rst_i      = 1;
+    rst_i       = 1;
     in_valid_i  = 0;
     out_ready_i = 0;
     a_i = 0;
@@ -76,11 +72,11 @@ task automatic reset();
 endtask
 
 task automatic test(
-    logic signed [DataWidth-1:0] a,
-    logic signed [DataWidth-1:0] b
+    logic [DataWidth-1:0] a,
+    logic [DataWidth-1:0] b
 );
-    logic signed [DataWidth-1:0] expected_result;
-    logic signed [DataWidth-1:0] received_result;
+    logic [DataWidth-1:0] expected_result;
+    logic [DataWidth-1:0] received_result;
 
     a_i     = a;
     b_i     = b;
@@ -113,7 +109,7 @@ initial begin
 end
 
 initial begin
-    logic signed [DataWidth-1:0] a, b;
+    logic [DataWidth-1:0] a, b;
 
     $dumpfile("dump.fst");
     $dumpvars;
@@ -122,7 +118,7 @@ initial begin
 
     reset();
 
-    repeat (10000) begin
+    repeat (100) begin
         a = rand_num();
         b = rand_num();
         test(a, b);

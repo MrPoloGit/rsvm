@@ -99,13 +99,13 @@ always_comb begin
             end
 
             // Initialize division portions
-            comp_b_d = -b_d;
+            comp_b_d    = -b_d;
             /* verilator lint_off WIDTHTRUNC */
-            quotient_d = a_d;
+            quotient_d  = a_d;
             /* verilator lint_on WIDTHTRUNC */
             remainder_d = '0;
-            iter_d = '0;
-            y_d = 0;
+            iter_d      = '0;
+            y_d         = 0;
 
             state_d = CALC;
         end
@@ -134,6 +134,7 @@ always_comb begin
                 // Restore correct sign to which is saved initially
                 y_d = quotient_q;
                 if (a_is_negative_q ^ b_is_negative_q) y_d = -y_d;
+
                 state_d = DONE;
             end
         end
@@ -141,15 +142,18 @@ always_comb begin
             out_valid_o = 1;
             if (out_ready_i) begin
                 // Clear stored values
-                a_d = 'x;
-                b_d = 'x;
-                y_d = 'x;
-                quotient_d = 'x;
-                remainder_d = 'x;
-                iter_d = 0;
+                state_d = IDLE;
+                a_d     = 'x;
+                b_d     = 'x;
+                y_d     = 'x;
+
                 a_is_negative_d = 0;
                 b_is_negative_d = 0;
-                state_d = IDLE;
+
+                quotient_d  = 'x;
+                remainder_d = 'x;
+                iter_d      = 0;
+                
             end
         end
     endcase
@@ -159,31 +163,31 @@ assign y_o = y_q;
 
 always_ff @(posedge clk_i) begin
     if (rst_i) begin
-        state_q <= IDLE;
-        a_q <= 'x;
-        b_q <= 'x;
+        state_q  <= IDLE;
+        a_q      <= 'x;
+        b_q      <= 'x;
         comp_b_q <= 'x;
-        y_q <= 'x;
+        y_q      <= 'x;
 
         a_is_negative_q <= 0;
         b_is_negative_q <= 0;
 
-        quotient_q <= 'x;
+        quotient_q  <= 'x;
         remainder_q <= 'x;
-        iter_q <= 0;
+        iter_q      <= 0;
     end else begin
-        state_q <= state_d;
-        a_q <= a_d;
-        b_q <= b_d;
+        state_q  <= state_d;
+        a_q      <= a_d;
+        b_q      <= b_d;
         comp_b_q <= comp_b_d;
-        y_q <= y_d;
+        y_q      <= y_d;
 
         a_is_negative_q <= a_is_negative_d;
         b_is_negative_q <= b_is_negative_d;
 
-        quotient_q <= quotient_d;
+        quotient_q  <= quotient_d;
         remainder_q <= remainder_d;
-        iter_q <= iter_d;
+        iter_q      <= iter_d;
     end
 end
 

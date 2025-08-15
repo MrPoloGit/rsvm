@@ -1,4 +1,4 @@
-# ---- Project config ----
+# ---- Makefile ---- #
 TOP           ?= signed_div_tb
 RTL_DIR       ?= rtl
 DV_DIR        ?= dv
@@ -10,21 +10,21 @@ SIMULATOR     ?= verilator
 RTL_FILELIST  ?= $(RTL_DIR)/rtl.f
 DV_FILELIST   ?= $(DV_DIR)/dv.f
 VERILATOR_FL  ?= -f $(DV_DIR)/verilator.f
-MDIR := verilator_dir
+MDIR 		  ?= $(TOP)
 
-.PHONY: all sim build run lint clean help
-all: sim
+.PHONY: sim build run lint clean help all
 
 build:
+	mkdir -p verilator_dir/
 	verilator --binary \
-	  --Mdir $(MDIR) \
+	  --Mdir verilator_dir/$(MDIR) \
 	  -f dv/dv.f \
 	  -f rtl/rtl.f \
 	  -f dv/verilator.f \
 	  --top $(TOP)
 
 run:
-	$(MDIR)/V$(TOP) +verilator+rand+reset+2
+	verilator_dir/$(MDIR)/V$(TOP) +verilator+rand+reset+2
 
 sim: build run
 
@@ -48,3 +48,7 @@ help:
 	@echo "  DV_FILELIST=$(DV_FILELIST)"
 	@echo "  BUILD_DIR=$(BUILD_DIR)"
 	@echo "  EXTRA_C_SOURCES=$(EXTRA_C_SOURCES)"
+
+all: 
+	make sim TOP=signed_div_tb
+	make sim TOP=unsigned_div_tb

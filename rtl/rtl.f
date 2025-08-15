@@ -1,4 +1,6 @@
 // Modules
+rtl/config_pkg.sv
+
 // Multiplier
 
 // Divider

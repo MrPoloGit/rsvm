@@ -1,4 +1,6 @@
 // Testbench sources
+dv/dv_pkg.sv
+
 // Multiplier
 
 // Divider

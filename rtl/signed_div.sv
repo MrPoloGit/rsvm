@@ -26,10 +26,11 @@ module signed_div #(
     output logic signed [DataWidth-1:0] y_o
 );
 
-typedef enum logic[1:0] {
+typedef enum logic[2:0] {
     IDLE,
     NEG,
     CALC,
+    POSTOP,
     DONE
 } state_t;
 
@@ -128,15 +129,17 @@ always_comb begin
                 // Increment
                 iter_d = iter_q + 1;
             end else begin
-                // Final correction for non-restoring division
-                if (remainder_q[DataWidth]) remainder_d = remainder_q + b_q;
-
-                // Restore correct sign to which is saved initially
-                y_d = quotient_q;
-                if (a_is_negative_q ^ b_is_negative_q) y_d = -y_d;
-
-                state_d = DONE;
+                state_d = POSTOP;
             end
+        end
+        POSTOP: begin
+            // Final correction for non-restoring division
+            if (remainder_q[DataWidth]) remainder_d = remainder_q + b_q;
+
+            // Restore correct sign to which is saved initially
+            y_d = quotient_q;
+            if (a_is_negative_q ^ b_is_negative_q) y_d = -y_d;
+            state_d = DONE;
         end
         DONE: begin
             out_valid_o = 1;
@@ -153,9 +156,9 @@ always_comb begin
                 quotient_d  = 'x;
                 remainder_d = 'x;
                 iter_d      = 0;
-                
             end
         end
+        default: state_d = IDLE;
     endcase
 end
 

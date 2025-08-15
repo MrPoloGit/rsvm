@@ -9,19 +9,22 @@
 // 20         DONE,   wait for out_ready_i
 // -------------------------------------------
 module signed_div #(
-    parameter int DataWidth = 4
+    parameter int DataWidth = 4, 
+    parameter int Log2DataWidth = $clog2(DataWidth),
+    parameter logic signed [DataWidth-1:0] MaxValue = ((1 << (DataWidth-1)) - 1),
+    parameter logic signed [DataWidth-1:0] MinValue = (-(1 << (DataWidth-1)))
 ) (
-    input  logic                         clk_i,
-    input  logic                         rst_i,
+    input  logic                        clk_i,
+    input  logic                        rst_i,
 
-    output logic                         in_ready_o,
-    input  logic                         in_valid_i,
-    input  logic signed [DataWidth-1: 0] a_i,
-    input  logic signed [DataWidth-1: 0] b_i,
+    output logic                        in_ready_o,
+    input  logic                        in_valid_i,
+    input  logic signed [DataWidth-1:0] a_i,
+    input  logic signed [DataWidth-1:0] b_i,
 
-    output logic                         out_valid_o,
-    input  logic                         out_ready_i,
-    output logic signed [DataWidth-1: 0] y_o
+    output logic                        out_valid_o,
+    input  logic                        out_ready_i,
+    output logic signed [DataWidth-1:0] y_o
 );
 
 typedef enum logic[3:0] {
@@ -35,8 +38,8 @@ typedef enum logic[3:0] {
 state_t state_d, state_q;
 
 // Inputs and outputs stored
-logic signed [DataWidth-1:0] a_d, a_q;
-logic signed [DataWidth-1:0] b_d, b_q;
+logic signed [DataWidth:0]   a_d, a_q;
+logic signed [DataWidth:0]   b_d, b_q;
 logic signed [DataWidth:0]   comp_b_d, comp_b_q;
 logic signed [DataWidth-1:0] y_d, y_q;
 
@@ -45,9 +48,9 @@ logic a_is_negative_d, a_is_negative_q;
 logic b_is_negative_d, b_is_negative_q;
 
 // Non-restoring division registers
-logic [DataWidth-1:0] quotient_d, quotient_q;   // quotient
-logic [DataWidth:0]   remainder_d, remainder_q; // Partial remainder
-logic [5:0]           iter_d, iter_q;
+logic [DataWidth-1:0]     quotient_d, quotient_q;
+logic [DataWidth:0]       remainder_d, remainder_q;
+logic [Log2DataWidth:0]   iter_d, iter_q;
 
 always_comb begin
     state_d = state_q;
@@ -70,13 +73,17 @@ always_comb begin
         IDLE: begin
             in_ready_o = 1;
             if (in_valid_i) begin
-                // Handling divide by zero immediately to save time
-                if (a_i == '0 || b_i == '0)begin
+                // Handling zero cases immediately to save time
+                if (a_i == 0)begin
                     y_d = '0;
                     state_d = DONE;
+                end else if (b_i == 0) begin
+                    if (a_i > 0) y_d = MaxValue;
+                    if (a_i < 0) y_d = MinValue;
+                    state_d = DONE;
                 end else begin
-                    a_d = a_i;
-                    b_d = b_i;
+                    a_d = {a_i[DataWidth-1], a_i};
+                    b_d = {b_i[DataWidth-1], b_i};
                     iter_d = 0;
                     state_d = NEG;
                 end
@@ -95,7 +102,9 @@ always_comb begin
 
             // Initialize division parts
             comp_b_d = -b_d;                     // Negate the absolute b_d
+            /* verilator lint_off WIDTHTRUNC */
             quotient_d = a_d;                    // Initialize quotient
+            /* verilator lint_on WIDTHTRUNC */
             remainder_d = '0;                    // Initialize remainder to 0
             iter_d = '0;                         // Start Iteration at 0
             y_d = 0;                             // Clear accumulator
@@ -104,13 +113,17 @@ always_comb begin
         end
 
         CALC: begin
-            if (iter_q != DataWidth) begin
+            /* verilator lint_off WIDTHEXPAND */
+            if (iter_q < DataWidth) begin
+            /* verilator lint_on WIDTHEXPAND */
                 // Shift Operation
                 {remainder_d, quotient_d} = {remainder_q, quotient_q} << 1;
 
                 // Addition/Subtraction
+                /* verilator lint_off WIDTHTRUNC */
                 if (remainder_d[DataWidth]) remainder_d = remainder_d + {1'b0, b_q};
                 else                        remainder_d = remainder_d + comp_b_q;
+                /* verilator lint_on WIDTHTRUNC */
 
                 // Set Bit
                 if (remainder_d[DataWidth]) quotient_d[0] = 0;

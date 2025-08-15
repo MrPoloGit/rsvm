@@ -2,21 +2,25 @@
 module signed_div_tb;
 
 parameter int DataWidth = 4;
+parameter logic signed [DataWidth-1:0] MaxValue = ((1 << (DataWidth-1)) - 1);
+parameter logic signed [DataWidth-1:0] MinValue = (-(1 << (DataWidth-1)));
 
-logic                  clk_i;
-logic                  rst_i;
+logic                        clk_i;
+logic                        rst_i;
 
-logic                  in_ready_o;
-logic                  in_valid_i;
-logic [DataWidth-1: 0] a_i;
-logic [DataWidth-1: 0] b_i;
+logic                        in_ready_o;
+logic                        in_valid_i;
+logic signed [DataWidth-1:0] a_i;
+logic signed [DataWidth-1:0] b_i;
 
-logic                  out_ready_i;
-logic                  out_valid_o;
-logic [DataWidth-1: 0] y_o;
+logic                        out_ready_i;
+logic                        out_valid_o;
+logic signed [DataWidth-1:0] y_o;
 
 signed_div #(
-    .DataWidth(DataWidth)
+    .DataWidth(DataWidth),
+    .MaxValue(MaxValue),
+    .MinValue(MinValue)
 ) dut (
     .clk_i(clk_i),
     .rst_i(rst_i),
@@ -33,18 +37,29 @@ signed_div #(
 
 function automatic logic signed [DataWidth-1:0] rand_num();
     /* verilator lint_off UNUSEDSIGNAL */
-    int val = $urandom_range(-(1 << (DataWidth-1)), (1 << (DataWidth-1)) - 1);
+    int num, r;
     /* verilator lint_on UNUSEDSIGNAL */
-    return val[DataWidth-1:0];
-    
+    num = $urandom_range(0, 4);
+
+    case (num)
+        0: r = 0;
+        1: r = ((1 << (DataWidth-1)) - 1);
+        2: r = (-(1 << (DataWidth-1)));
+        3: r = $urandom_range(0, ((1 << (DataWidth-1)) - 1));
+        4: r = -$urandom_range(0, (1 << (DataWidth-1)));
+    endcase
+
+    return r[DataWidth-1:0];
 endfunction
 
-// Expected division result
 function automatic logic signed [DataWidth-1:0] expected_div(
     logic signed [DataWidth-1:0] a,
     logic signed [DataWidth-1:0] b
 );
-    if (b == 0) return '0; // Avoid divide-by-zero
+    if (b == 0) begin
+        if (a > 0) return MaxValue; 
+        if (a < 0) return MinValue;
+    end
     return a / b;
 endfunction
 
@@ -64,15 +79,6 @@ task automatic test(
 );
     logic signed [DataWidth-1:0] expected_result;
     logic signed [DataWidth-1:0] received_result;
-    
-    // Skip divide by zero cases
-    if (b == 0) begin
-        $display("Skipping divide by zero case: a=%0d (0x%0h), b=%0d (0x%0h)", 
-        a, a,
-        b, b,
-        );
-        return;
-    end
 
     a_i     = a;
     b_i     = b;
@@ -90,11 +96,8 @@ task automatic test(
     expected_result = expected_div(a, b);
 
     if (expected_result != received_result) begin
-        $display("Mismatch: a=%0d (0x%0h), b=%0d (0x%0h), expected=%0d (0x%0h), got=%0d (0x%0h)",
-            a, a,
-            b, b,
-            expected_result, expected_result,
-            received_result, received_result
+        $display("Mismatch: a=%0d, b=%0d, expected=%0d, received=%0d",
+                a, b, expected_result, received_result
         );
     end
 endtask
@@ -117,7 +120,7 @@ initial begin
 
     reset();
 
-    repeat (100) begin
+    repeat (10000) begin
         a = rand_num();
         b = rand_num();
         test(a, b);
@@ -126,6 +129,5 @@ initial begin
     $display("End simulation.");
     $finish;
 end
-
 
 endmodule

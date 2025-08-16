@@ -6,3 +6,7 @@ rtl/config_pkg.sv
 // Divider
 rtl/unsigned_div.sv
 rtl/signed_div.sv
+
+// Converters
+rtl/FPtoFXP.sv
+rtl/FXPtoFP.sv

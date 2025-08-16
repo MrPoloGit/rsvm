@@ -54,3 +54,8 @@ make all
 - 8 bits to 5 ternary decompression
 - VHDL usage
 - cocoTB usage
+- FXP to rawFP
+- FXP to RecFP
+- Modules that work with HardFloat
+- FXP modules like HardFloat
+- lol maybe make HardFix

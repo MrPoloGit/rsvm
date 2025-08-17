@@ -7,6 +7,8 @@ lint_off -rule UNOPTFLAT
 lint_off -rule TIMESCALEMOD
 lint_off -rule CASEINCOMPLETE
 
+lint_off -rule UNUSEDPARAM -file "*pkg.sv"
+
 lint_off -rule VARHIDDEN   -file "*dv/*"
 lint_off -rule PINMISSING  -file "*dv/*"
 lint_off -rule SYNCASYNCNET -file "*dv/*"

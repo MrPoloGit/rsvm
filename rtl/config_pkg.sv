@@ -24,15 +24,15 @@ typedef struct packed {
 } float_t;
 
 float_t FPMin = '{
-    sign: 1'b1,                                         // negative
-    biased_exponent: {(FPBiasedExponent-1){1'b1},1'b0}, // max exponent before infinity
-    mantissa: {FPMantissa{1'b1}}                        // all 1s
+    sign: 1'b1,                                           // negative
+    biased_exponent: {{(FPBiasedExponent-1){1'b1}},1'b0}, // max exponent before infinity
+    mantissa: {FPMantissa{1'b1}}                          // all 1s
 };
 
 float_t FPMax = '{
-    sign: 1'b0,                                         // positive
-    biased_exponent: {(FPBiasedExponent-1){1'b1},1'b0}, // max exponent before infinity
-    mantissa: {FPMantissa{1'b1}}                        // all 1s
+    sign: 1'b0,                                           // positive
+    biased_exponent: {{(FPBiasedExponent-1){1'b1}},1'b0}, // max exponent before infinity
+    mantissa: {FPMantissa{1'b1}}                          // all 1s
 };
 
 float_t FP_Neg_Inf = '{
@@ -59,7 +59,7 @@ endfunction
 function automatic logic signed [FPBiasedExponent-1:0] float_exponent(float_t f);
     return f.biased_exponent
         + FPBiasedExponent'(f.biased_exponent == 0)
-        - FPBiasedExponent'(Bias);
+        - FPBiasedExponent'(FPBias);
 endfunction
 
 function automatic float_t neg(float_t f);

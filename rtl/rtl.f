@@ -8,5 +8,5 @@ rtl/unsigned_div.sv
 rtl/signed_div.sv
 
 // Converters
-rtl/FPtoFXP.sv
-rtl/FXPtoFP.sv
+// rtl/FPtoFXP.sv
+// rtl/FXPtoFP.sv

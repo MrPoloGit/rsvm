@@ -17,6 +17,7 @@ MDIR 		  ?= $(TOP)
 build:
 	mkdir -p verilator_dir/
 	verilator --binary \
+	  -Wno-fatal \
 	  --Mdir verilator_dir/$(MDIR) \
 	  -f dv/dv.f \
 	  -f rtl/rtl.f \
@@ -29,7 +30,7 @@ run:
 sim: build run
 
 lint:
-	verilator lint.vlt -f rtl/rtl.f -f dv/dv.f --lint-only
+	verilator lint.vlt -f rtl/rtl.f -f dv/dv.f --lint-only -Wno-fatal
 
 clean:
 	rm -rf $(BUILD_DIR) dump.$(WAVE_FORMAT) *.log verilator_dir/

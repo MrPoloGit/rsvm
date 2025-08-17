@@ -2,6 +2,8 @@ package config_pkg;
 
 /* verilator lint_off UNUSEDPARAM */
 /* verilator lint_off UNUSEDSIGNAL */
+// Ternary Type
+typedef logic signed [1:0] ternary_t;
 
 // Fixed Point format, can be altered
 parameter int FXPPrecision = 8;

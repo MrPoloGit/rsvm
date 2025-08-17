@@ -21,7 +21,6 @@ assign t[3] = t[2] & b[3];
 assign t[4] = x[0] | b[3] & x[1];
 assign t[5] = t[4] & b[4];
 
-
 // Will verilator understand this?
 // assign t_o = t;
 

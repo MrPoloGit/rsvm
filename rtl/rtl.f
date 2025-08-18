@@ -13,3 +13,4 @@ rtl/signed_div.sv
 
 // Decompressors
 rtl/bit5totrit3.sv
+rtl/bit8totrit5.sv

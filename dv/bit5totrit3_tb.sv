@@ -47,19 +47,8 @@ function automatic ternary_t [2:0] expected_trit3_2 (logic [4:0] b);
         default:  t = 6'bxxxxxx;
     endcase
 
-    // Don't exactly need this
-    // foreach (t[i]) begin
-    //     case (code[i*2 +: 2])
-    //         2'b00: t[i] = 0;
-    //         2'b01: t[i] = 1;
-    //         2'b11: t[i] = -1;
-    //         default: t[i] = 0;
-    //     endcase
-    // end
-
     return t;
 endfunction
-
 
 task automatic test();
     int b;
@@ -100,7 +89,6 @@ initial begin
     
     $display("End simulation.");
     $finish;
-
 end
 
 endmodule

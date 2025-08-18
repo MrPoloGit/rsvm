@@ -5,7 +5,9 @@ module bit5totrit3 import config_pkg::*; (
 );
 
 logic [4:0] b;
+/* verilator lint_off UNOPTFLAT */
 logic [5:0] t;
+/* verilator lint_on UNOPTFLAT */
 
 logic [1:0] x;
 
@@ -21,11 +23,8 @@ assign t[3] = t[2] & b[3];
 assign t[4] = x[0] | b[3] & x[1];
 assign t[5] = t[4] & b[4];
 
-// Will verilator understand this?
-// assign t_o = t;
-
-assign t_o[0] = t[1:0];
-assign t_o[1] = t[3:2];
-assign t_o[2] = t[5:4];
+assign t_o[0] = {t[1], t[0]};
+assign t_o[1] = {t[3], t[2]};
+assign t_o[2] = {t[5], t[4]};
 
 endmodule

@@ -1,4 +1,4 @@
-// If you are compute bound it would probably better to use LUTs instead of this
+
 module bit8totrit5 import config_pkg::*; (
     input  logic [7:0]     b_i,
     output ternary_t [4:0] t_o
@@ -43,7 +43,7 @@ module bit8totrit5 import config_pkg::*; (
     assign t[1] = b[4] & y[0] | b[3] & x[0];
     assign t[2] = x[8] | x[9];
     assign t[3] = b[5] & x[9] | b[4] & x[8];
-    assign t[4] = x[6] & x[7];
+    assign t[4] = x[6] | x[7];
     assign t[5] = b[6] & x[7] | b[5] & x[6];
     assign t[6] = x[4] | x[5];
     assign t[7] = b[7] & x[5] | b[6] & x[4];

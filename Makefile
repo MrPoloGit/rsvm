@@ -27,7 +27,10 @@ build:
 run:
 	verilator_dir/$(MDIR)/V$(TOP) +verilator+rand+reset+2
 
-sim: build run
+sim: 
+	@echo "Running simulation for $(TOP)"
+	make build 
+	make run
 
 lint:
 	verilator lint.vlt -f rtl/rtl.f -f dv/dv.f --lint-only -Wno-fatal

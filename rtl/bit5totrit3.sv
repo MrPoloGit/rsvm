@@ -1,4 +1,4 @@
-// If you are compute bound it would probably better to use LUTs instead of this
+
 module bit5totrit3 import config_pkg::*; (
     input logic [4:0]      b_i,
     output ternary_t [2:0] t_o

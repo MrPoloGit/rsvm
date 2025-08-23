@@ -95,6 +95,7 @@ always_comb begin
                 a_d = -a_q;
                 a_is_negative_d = 1;
             end
+            
             if (b_q[DataWidth-1]) begin
                 b_d = -b_q;
                 b_is_negative_d = 1;

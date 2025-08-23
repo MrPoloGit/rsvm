@@ -8,7 +8,7 @@
 // 20         DONE,   wait for out_ready_i
 // -------------------------------------------
 
-module signed_fxp_mul import config_pkg::*; #( 
+module signed_mul #(
     parameter DataWidth = 16,
     parameter int Log2DataWidth = $clog2(DataWidth)
 ) (
@@ -37,9 +37,9 @@ typedef enum logic[3:0] {
 state_t state_d, state_q;
 
 // Inputs and outputs stored
-logic signed [2*FixedPointPrecision-1:0] a_d, a_q;
-logic signed [2*FixedPointPrecision-1:0] b_d, b_q;
-logic signed [2*FixedPointPrecision-1:0] y_d, y_q;
+logic signed [2*DataWidth-1:0] a_d, a_q;
+logic signed [2*DataWidth-1:0] b_d, b_q;
+logic signed [2*DataWidth-1:0] y_d, y_q;
 
 // Sign tracking for restoring correct signs later
 logic a_is_negative_d, a_is_negative_q;
@@ -59,7 +59,7 @@ always_comb begin
     in_ready_o = 0;
     out_valid_o = 0;
 
-    case (state_q) 
+    case (state_q)
         IDLE: begin
             in_ready_o = 1;
             if (in_valid_i) begin
@@ -115,7 +115,7 @@ always_comb begin
                 state_d = IDLE;
             end
         end
-        default: IDLE
+        default: state_d = IDLE;
     endcase
 end
 
@@ -123,21 +123,22 @@ assign y_o = y_q;
 
 always_ff @(posedge clk_i) begin
     if (rst_i) begin
-        state_q <= IDLE;
-        a_q <= 'x;
-        b_q <= 'x;
-        y_q <= 'x;
+        state_q         <= IDLE;
+        a_q             <= 'x;
+        b_q             <= 'x;
+        y_q             <= 'x;
         a_is_negative_q <= 0;
         b_is_negative_q <= 0;
-        iter_q <= '0;
+        iter_q          <= '0;
     end else begin
-        state_q <= state_d;
-        a_q <= a_d;
-        b_q <= b_d;
-        y_q <= y_d;
+        state_q         <= state_d;
+        a_q             <= a_d;
+        b_q             <= b_d;
+        y_q             <= y_d;
         a_is_negative_q <= a_is_negative_d;
         b_is_negative_q <= b_is_negative_d;
-        iter_q <= iter_d;
+        iter_q          <= iter_d;
     end
 end
+
 endmodule

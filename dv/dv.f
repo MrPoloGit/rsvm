@@ -25,6 +25,7 @@
 dv/dv_pkg.sv
 
 // Multiplier
+dv/unsigned_mul_tb.sv
 dv/signed_mul_tb.sv
 
 // Divider

@@ -2,6 +2,7 @@
 rtl/config_pkg.sv
 
 // Multiplier
+rtl/unsigned_mul.sv
 rtl/signed_mul.sv
 
 // Divider

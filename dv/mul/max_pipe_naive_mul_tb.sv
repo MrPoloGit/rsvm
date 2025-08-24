@@ -61,6 +61,14 @@ function automatic logic [DataWidth-1:0] rand_num();
     return r[DataWidth-1:0];
 endfunction
 
+function automatic logic rand_01();
+    /* verilator lint_off UNUSEDSIGNAL */
+    int num;
+    /* verilator lint_on UNUSEDSIGNAL */
+    num = $urandom_range(0, 1);
+    return num[0];
+endfunction
+
 function automatic logic [2*DataWidth-1:0] expected_mul(
     logic [DataWidth-1:0] a,
     logic [DataWidth-1:0] b
@@ -102,6 +110,7 @@ always @(posedge clk_i) begin
         send_idx   <= 0;
         expected_q.delete();
     end else begin
+        // out_ready_i <= rand_01();
         if (in_ready_o && (send_idx < N)) begin
             a_i        <= vecs[send_idx].a;
             b_i        <= vecs[send_idx].b;

@@ -1,8 +1,8 @@
 
 module max_pipe_naive_mul_tb;
 
-parameter int                   DataWidth = 4;
-parameter int                   N         = 5;
+parameter int                   DataWidth = 3;
+parameter int                   N         = 20;
 parameter logic [DataWidth-1:0] MaxValue  = {DataWidth{1'b1}};
 
 typedef struct packed {
@@ -14,6 +14,7 @@ typedef struct packed {
 mul_td vecs [N];
 mul_td expected_q[$];
 int send_idx;
+int cycle_num;
 
 logic                   clk_i;
 logic                   rst_i;
@@ -128,7 +129,11 @@ always @(posedge clk_i) begin
             end
         end
     end
+    // $display("Cycle num: %d", cycle_num);
+    cycle_num++;
 end
+
+// always @(posedge clk_i) out_ready_i <= $urandom_range(0,1);
 
 initial begin
     $dumpfile("dump.fst");
@@ -137,14 +142,13 @@ initial begin
     $timeformat(-6, 3, "us", 0);
 
     reset();
-    out_ready_i = 1'b1;
-    // always @(posedge clk_i) out_ready_i <= $urandom_range(0,1);
+    out_ready_i = 1'b1; // Need to test randomization of out_ready_i
 
     // Start driving after reset
-    // Finish when all sent and queue drained to zero.
     wait (send_idx == N);
+    // Finish when all sent and queue drained to zero.
     wait (expected_q.size() == 0);
-    // small guard to catch late glitches
+    // Small guard to catch late glitches
     repeat (2) @(posedge clk_i);
     
     $display("End simulation.");

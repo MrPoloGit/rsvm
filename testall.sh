@@ -3,6 +3,7 @@
 # All modules
 # Multipliers
 make sim TOP=naive_mul_tb
+make sim TOP=max_pipe_naive_mul_tb
 make sim TOP=signed_mul_tb
 
 # Dividers

@@ -2,17 +2,18 @@
 rtl/config_pkg.sv
 
 // Multiplier
-rtl/unsigned_mul.sv
-rtl/signed_mul.sv
+rtl/mul/naive_mul.sv
+rtl/mul/signed_mul.sv
+rtl/mul/max_pipe_unsigned_mul.sv
 
 // Divider
-rtl/unsigned_div.sv
-rtl/signed_div.sv
+rtl/div/unsigned_div.sv
+rtl/div/signed_div.sv
 
 // Converters
 // rtl/FPtoFXP.sv
 // rtl/FXPtoFP.sv
 
 // Decompressors
-rtl/bit5totrit3.sv
-rtl/bit8totrit5.sv
+rtl/decompressors/bit5totrit3.sv
+rtl/decompressors/bit8totrit5.sv

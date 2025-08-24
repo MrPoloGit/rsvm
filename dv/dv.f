@@ -25,13 +25,14 @@
 dv/dv_pkg.sv
 
 // Multiplier
-dv/unsigned_mul_tb.sv
-dv/signed_mul_tb.sv
+dv/mul/naive_mul_tb.sv
+dv/mul/signed_mul_tb.sv
+dv/mul/max_pipe_unsigned_mul_tb.sv
 
 // Divider
-dv/unsigned_div_tb.sv
-dv/signed_div_tb.sv
+dv/div/unsigned_div_tb.sv
+dv/div/signed_div_tb.sv
 
 // Decompressors
-dv/bit5totrit3_tb.sv
-dv/bit8totrit5_tb.sv
+dv/decompressors/bit5totrit3_tb.sv
+dv/decompressors/bit8totrit5_tb.sv

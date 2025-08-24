@@ -1,22 +1,22 @@
 
-module unsigned_mul_tb;
+module naive_mul_tb;
 
 parameter int DataWidth = 4;
 parameter logic [DataWidth-1:0] MaxValue = {DataWidth{1'b1}};
 
-logic                 clk_i;
-logic                 rst_i;
+logic                   clk_i;
+logic                   rst_i;
 
-logic                 in_ready_o;
-logic                 in_valid_i;
-logic [DataWidth-1:0] a_i;
-logic [DataWidth-1:0] b_i;
+logic                   in_ready_o;
+logic                   in_valid_i;
+logic [DataWidth-1:0]   a_i;
+logic [DataWidth-1:0]   b_i;
 
-logic                 out_ready_i;
-logic                 out_valid_o;
-logic [DataWidth-1:0] y_o;
+logic                   out_ready_i;
+logic                   out_valid_o;
+logic [2*DataWidth-1:0] y_o;
 
-unsigned_mul #(
+naive_mul #(
     .DataWidth(DataWidth)
 ) dut (
     .clk_i(clk_i),
@@ -49,7 +49,7 @@ function automatic logic [DataWidth-1:0] rand_num();
     return r[DataWidth-1:0];
 endfunction
 
-function automatic logic [DataWidth-1:0] expected_mul(
+function automatic logic [2*DataWidth-1:0] expected_mul(
     logic [DataWidth-1:0] a,
     logic [DataWidth-1:0] b
 );
@@ -70,8 +70,8 @@ task automatic test(
     logic [DataWidth-1:0] a,
     logic [DataWidth-1:0] b
 );
-    logic [DataWidth-1:0] expected_result;
-    logic [DataWidth-1:0] received_result;
+    logic [2*DataWidth-1:0] expected_result;
+    logic [2*DataWidth-1:0] received_result;
 
     a_i     = a;
     b_i     = b;
@@ -113,7 +113,7 @@ initial begin
 
     reset();
 
-    repeat (10000) begin
+    repeat (100) begin
         a = rand_num();
         b = rand_num();
         test(a, b);

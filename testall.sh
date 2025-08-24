@@ -2,6 +2,7 @@
 
 # All modules
 # Multipliers
+make sim TOP=naive_mul_tb
 make sim TOP=signed_mul_tb
 
 # Dividers

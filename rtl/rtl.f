@@ -3,8 +3,8 @@ rtl/config_pkg.sv
 
 // Multiplier
 rtl/mul/naive_mul.sv
+rtl/mul/max_pipe_naive_mul.sv
 rtl/mul/signed_mul.sv
-rtl/mul/max_pipe_unsigned_mul.sv
 
 // Divider
 rtl/div/unsigned_div.sv

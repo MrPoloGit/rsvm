@@ -41,7 +41,7 @@ module naive_mul #(
                 in_ready_o = 1;
                 if (in_valid_i) begin
                     m_d    = a_i;
-                    p_d    = {{DataWidth{1'b0}}, b_i};
+                    p_d    = {{(DataWidth+1){1'b0}}, b_i};
                     iter_d = '0;
                     state_d = CALC;
                 end

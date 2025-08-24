@@ -95,7 +95,11 @@ end
 
 always @(posedge clk_i) begin
     if (rst_i) begin
-        reset();
+        in_valid_i <= 1'b0;
+        a_i        <= '0;
+        b_i        <= '0;
+        send_idx   <= 0;
+        expected_q.delete();
     end else begin
         if (in_ready_o && (send_idx < N)) begin
             a_i        <= vecs[send_idx].a;

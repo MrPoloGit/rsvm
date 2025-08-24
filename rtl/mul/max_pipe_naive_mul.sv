@@ -21,6 +21,7 @@ logic [2*DataWidth:0] p_q [DataWidth];
 
 logic                 valid_d [DataWidth];
 logic                 valid_q [DataWidth];
+logic [2*DataWidth:0] tmp;
 
 generate
     genvar i;
@@ -29,20 +30,28 @@ generate
             m_d[i]     = m_q[i];
             p_d[i]     = p_q[i];
             valid_d[i] = valid_q[i];
+            tmp        = '0;
 
             if (out_ready_i) begin
                 if (i == 0) begin
+                    
                     m_d[i]     = a_i;
                     p_d[i]     = {{(DataWidth+1){1'b0}}, b_i};;
                     valid_d[i] = in_valid_i;
                 end else begin
-                    m_d[i] = m_q[i-1];
-                    if (p_q[i-1][0]) begin
-                        p_d[i][2*DataWidth:DataWidth] = p_q[i-1][2*DataWidth:DataWidth] + {1'b0, m_q[i-1]};
-                    end
-                    p_d[i] = p_d[i-1] >> 1;
+                    m_d[i]     = m_q[i-1];
                     valid_d[i] = valid_q[i-1];
-                end 
+
+                    tmp = p_q[i-1]; // use registered previous stage
+
+                    if (tmp[0]) begin
+                        tmp[2*DataWidth:DataWidth] =
+                            tmp[2*DataWidth:DataWidth] + {1'b0, m_q[i-1]};  // add multiplicand
+                    end
+
+                    // logical right shift by 1 (guard-in zero)
+                    p_d[i] = {1'b0, tmp[2*DataWidth:1]};
+                end
             end
         end
 

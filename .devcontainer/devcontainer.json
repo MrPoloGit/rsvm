@@ -15,6 +15,5 @@
         "SimonSiefke.svg-preview"
       ]
     }
-  },
-  "postCreateCommand": "if [ -f sw_utils/requirements.txt ]; then pip3 install --no-cache-dir -r sw_utils/requirements.txt; fi"
+  }
 }

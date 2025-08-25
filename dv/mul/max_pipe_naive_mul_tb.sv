@@ -1,3 +1,10 @@
+// current issue with when I'm printing is due to me not waiting until send_idx reaching N
+// only should start counting down them
+// issue with out_ready_i = 0, that being if we remove the previous then check again it will be different?
+// maybe store the last output until next out_ready_i = 1
+// maybe do gen_vcs in the main initial begin and then only after it has finished generating the stream
+// we begin the always checking?????
+// there has gotta be a better way of testing pipelining that I don't know
 
 module max_pipe_naive_mul_tb;
 

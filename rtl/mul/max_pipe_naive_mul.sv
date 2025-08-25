@@ -45,13 +45,10 @@ generate
                 end else begin
                     m_d[i]     = m_q[i-1];
                     valid_d[i] = valid_q[i-1];
-
                     p_tmp[i] = p_q[i-1];
-
                     if (p_q[i-1][0]) begin
                         p_tmp[i][2*DataWidth:DataWidth] = p_q[i-1][2*DataWidth:DataWidth] + {1'b0, m_q[i-1]};
                     end
-
                     p_d[i] = {1'b0, p_tmp[i][2*DataWidth:1]};
                 end
             end

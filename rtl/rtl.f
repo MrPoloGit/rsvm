@@ -4,6 +4,7 @@ rtl/config_pkg.sv
 // Multiplier
 rtl/mul/naive_mul.sv
 rtl/mul/max_pipe_naive_mul.sv
+rtl/mul/naive_signed_mul.sv
 rtl/mul/signed_mul.sv
 
 // Divider

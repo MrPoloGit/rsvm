@@ -27,6 +27,7 @@ dv/dv_pkg.sv
 // Multiplier
 dv/mul/naive_mul_tb.sv
 dv/mul/max_pipe_naive_mul_tb.sv
+dv/mul/naive_signed_mul_tb.sv
 dv/mul/signed_mul_tb.sv
 
 // Divider

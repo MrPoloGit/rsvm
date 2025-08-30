@@ -1,5 +1,7 @@
 # Custom System Verilog Modules
 
+will be changing the name to MRSVM, Random System Verilog modules
+
 ## Setup
 ```bash
 # Repository setup
@@ -59,3 +61,7 @@ make all
 - Modules that work with HardFloat
 - FXP modules like HardFloat
 - lol maybe make HardFix
+- binary search count leading zeros experiment? pipelinable theoretically?
+- tree LZD
+- signed naive mul, then add handling for fxp, than truncation and sat max and min
+- 3 cycle mul, first pass straight to ultiply, wait cycle then arithmatic shit

@@ -65,6 +65,7 @@ module naive_mul #(
                     state_d = IDLE;
                 end
             end
+            default: state_d = IDLE;
         endcase
     end
 

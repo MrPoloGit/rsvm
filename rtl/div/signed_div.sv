@@ -1,4 +1,3 @@
-
 // -------------------------------------------
 // Cycles       Operation
 // -------------------------------------------
@@ -7,6 +6,8 @@
 // 3-(DataWidth+2) CALC,   shift, add/subtract, set bit operation, negate quotient (if necessary), and add remainder (if necessary)
 // (DataWidth+4)   DONE,   wait for out_ready_i
 // -------------------------------------------
+
+// Add remainder output
 module signed_div #(
     parameter int DataWidth = 4, 
     parameter int Log2DataWidth = $clog2(DataWidth),
@@ -34,7 +35,7 @@ typedef enum logic[2:0] {
     DONE
 } state_t;
 
-state_t state_d, state_q;
+state_t                      state_d, state_q;
 
 // Inputs and outputs stored
 logic signed [DataWidth:0]   a_d, a_q;
@@ -43,29 +44,29 @@ logic signed [DataWidth:0]   comp_b_d, comp_b_q;
 logic signed [DataWidth-1:0] y_d, y_q;
 
 // Sign tracking for restoring correct signs later
-logic a_is_negative_d, a_is_negative_q;
-logic b_is_negative_d, b_is_negative_q;
+logic                        a_sign_d, a_sign_q;
+logic                        b_sign_d, b_sign_q;
 
 // Non-restoring division registers
-logic [DataWidth-1:0]     quotient_d, quotient_q;
-logic [DataWidth:0]       remainder_d, remainder_q;
-logic [Log2DataWidth:0]   iter_d, iter_q;
+logic [DataWidth-1:0]       quotient_d, quotient_q;
+logic [DataWidth:0]         remainder_d, remainder_q;
+logic [Log2DataWidth:0]     iter_d, iter_q;
 
 always_comb begin
-    state_d = state_q;
-    a_d = a_q;
-    b_d = b_q;
-    comp_b_d = comp_b_q;
-    y_d = y_q;
+    state_d     = state_q;
+    a_d         = a_q;
+    b_d         = b_q;
+    comp_b_d    = comp_b_q;
+    y_d         = y_q;
 
-    a_is_negative_d = a_is_negative_q;
-    b_is_negative_d = b_is_negative_q;
+    a_sign_d    = a_sign_q;
+    b_sign_d    = b_sign_q;
 
-    quotient_d = quotient_q;
+    quotient_d  = quotient_q;
     remainder_d = remainder_q;
-    iter_d = iter_q;
+    iter_d      = iter_q;
 
-    in_ready_o = 0;
+    in_ready_o  = 0;
     out_valid_o = 0;
 
     case (state_q)
@@ -90,16 +91,12 @@ always_comb begin
         end
         NEG: begin
             // Convert to unsigned
-            // don't need if statement exactly, could do a ternary statement and a_is_negative_d = a_q[DataWidth-1]
-            if (a_q[DataWidth-1]) begin
-                a_d = -a_q;
-                a_is_negative_d = 1;
-            end
+            // don't need if statement exactly, could do a ternary statement and a_sign_d = a_q[DataWidth-1]
+            if (a_q[DataWidth-1]) a_d = -a_q;
+            a_sign_d = a_q[DataWidth-1];
             
-            if (b_q[DataWidth-1]) begin
-                b_d = -b_q;
-                b_is_negative_d = 1;
-            end
+            if (b_q[DataWidth-1]) b_d = -b_q;
+            b_sign_d = b_q[DataWidth-1];
 
             // Initialize division portions
             comp_b_d    = -b_d;
@@ -140,20 +137,20 @@ always_comb begin
 
             // Restore correct sign to which is saved initially
             y_d = quotient_q;
-            if (a_is_negative_q ^ b_is_negative_q) y_d = -y_d;
+            if (a_sign_q ^ b_sign_q) y_d = -y_d;
             state_d = DONE;
         end
         DONE: begin
             out_valid_o = 1;
             if (out_ready_i) begin
                 // Clear stored values
-                state_d = IDLE;
-                a_d     = 'x;
-                b_d     = 'x;
-                y_d     = 'x;
+                state_d     = IDLE;
+                a_d         = 'x;
+                b_d         = 'x;
+                y_d         = 'x;
 
-                a_is_negative_d = 0;
-                b_is_negative_d = 0;
+                a_sign_d    = 0;
+                b_sign_d    = 0;
 
                 quotient_d  = 'x;
                 remainder_d = 'x;
@@ -168,27 +165,27 @@ assign y_o = y_q;
 
 always_ff @(posedge clk_i) begin
     if (rst_i) begin
-        state_q  <= IDLE;
-        a_q      <= 'x;
-        b_q      <= 'x;
-        comp_b_q <= 'x;
-        y_q      <= 'x;
+        state_q     <= IDLE;
+        a_q         <= 'x;
+        b_q         <= 'x;
+        comp_b_q    <= 'x;
+        y_q         <= 'x;
 
-        a_is_negative_q <= 0;
-        b_is_negative_q <= 0;
+        a_sign_q    <= 0;
+        b_sign_q    <= 0;
 
         quotient_q  <= 'x;
         remainder_q <= 'x;
         iter_q      <= 0;
     end else begin
-        state_q  <= state_d;
-        a_q      <= a_d;
-        b_q      <= b_d;
-        comp_b_q <= comp_b_d;
-        y_q      <= y_d;
+        state_q     <= state_d;
+        a_q         <= a_d;
+        b_q         <= b_d;
+        comp_b_q    <= comp_b_d;
+        y_q         <= y_d;
 
-        a_is_negative_q <= a_is_negative_d;
-        b_is_negative_q <= b_is_negative_d;
+        a_sign_q    <= a_sign_d;
+        b_sign_q    <= b_sign_d;
 
         quotient_q  <= quotient_d;
         remainder_q <= remainder_d;

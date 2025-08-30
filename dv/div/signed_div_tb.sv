@@ -1,4 +1,4 @@
-
+// Add remainder checking
 module signed_div_tb;
 
 parameter int DataWidth = 4;
@@ -64,6 +64,14 @@ function automatic logic signed [DataWidth-1:0] expected_div(
     end
     return a / b;
 endfunction
+
+// function automatic logic signed [DataWidth-1:0] expected_remainder(
+//     logic signed [DataWidth-1:0] a,
+//     logic signed [DataWidth-1:0] b
+// );
+
+
+// endfunction
 
 task automatic reset();
     rst_i      = 1;

@@ -42,21 +42,22 @@ logic signed [2*DataWidth-1:0] b_d, b_q;
 logic signed [2*DataWidth-1:0] y_d, y_q;
 
 // Sign tracking for restoring correct signs later
-logic a_is_negative_d, a_is_negative_q;
-logic b_is_negative_d, b_is_negative_q;
+logic a_sign_d, a_sign_q;
+logic b_sign_d, b_sign_q;
 
 // Shift and add variables
 logic [4:0] iter_d, iter_q;
 
 always_comb begin
-    state_d = state_q;
-    a_d = a_q;
-    b_d = b_q;
-    y_d = y_q;
-    a_is_negative_d = a_is_negative_q;
-    b_is_negative_d = b_is_negative_q;
-    iter_d = iter_q;
-    in_ready_o = 0;
+    state_d     = state_q;
+    a_d         = a_q;
+    b_d         = b_q;
+    y_d         = y_q;
+    a_sign_d    = a_sign_q;
+    b_sign_d    = b_sign_q;
+    iter_d      = iter_q;
+    
+    in_ready_o  = 0;
     out_valid_o = 0;
 
     case (state_q)
@@ -74,17 +75,14 @@ always_comb begin
             end
         end
         NEG: begin
-            a_is_negative_d = 0;
-            b_is_negative_d = 0;
+            a_sign_d = 0;
+            b_sign_d = 0;
             // Does this work?
-            if (a_q[DataWidth-1]) begin
-                a_d = -a_q;
-                a_is_negative_d = 1;
-            end
-            if (b_q[DataWidth-1]) begin
-                b_d = -b_q;
-                b_is_negative_d = 1;
-            end
+            a_sign_d = a_q[DataWidth-1];
+            if (a_q[DataWidth-1]) a_d = -a_q;
+
+            b_sign_d = b_q[DataWidth-1];
+            if (b_q[DataWidth-1]) b_d = -b_q;
             y_d = 0;  // Clear accumulator
             state_d = CALC;
         end
@@ -101,18 +99,18 @@ always_comb begin
             end
         end
         POSTOP: begin
-            if (a_is_negative_q ^ b_is_negative_q) y_d = -y_q;
+            if (a_sign_q ^ b_sign_q) y_d = -y_q;
             state_d = DONE;
         end
         DONE: begin
             out_valid_o = 1;
             if (out_ready_i) begin
-                a_d = 'x;
-                b_d = 'x;
-                y_d = 'x;
-                a_is_negative_d = 'x;
-                b_is_negative_d = 'x;
-                state_d = IDLE;
+                a_d      = 'x;
+                b_d      = 'x;
+                y_d      = 'x;
+                a_sign_d = 'x;
+                b_sign_d = 'x;
+                state_d  = IDLE;
             end
         end
         default: state_d = IDLE;
@@ -127,16 +125,16 @@ always_ff @(posedge clk_i) begin
         a_q             <= 'x;
         b_q             <= 'x;
         y_q             <= 'x;
-        a_is_negative_q <= 0;
-        b_is_negative_q <= 0;
+        a_sign_q        <= 0;
+        b_sign_q        <= 0;
         iter_q          <= '0;
     end else begin
         state_q         <= state_d;
         a_q             <= a_d;
         b_q             <= b_d;
         y_q             <= y_d;
-        a_is_negative_q <= a_is_negative_d;
-        b_is_negative_q <= b_is_negative_d;
+        a_sign_q        <= a_sign_d;
+        b_sign_q        <= b_sign_d;
         iter_q          <= iter_d;
     end
 end

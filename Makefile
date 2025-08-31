@@ -1,16 +1,15 @@
 # ---- Makefile ---- #
-TOP           ?= signed_div_tb
-RTL_DIR       ?= rtl
-DV_DIR        ?= dv
-BUILD_DIR     ?= obj_dir
-WAVE_FORMAT   ?= fst
-SIMULATOR     ?= verilator
+TOP          ?= signed_div_tb
+RTL_DIR      ?= rtl
+DV_DIR       ?= dv
+BUILD_DIR    ?= obj_dir
+WAVE_FORMAT  ?= fst
+SIMULATOR    ?= verilator
 
-
-RTL_FILELIST  ?= $(RTL_DIR)/rtl.f
-DV_FILELIST   ?= $(DV_DIR)/dv.f
-VERILATOR_FL  ?= -f $(DV_DIR)/verilator.f
-MDIR 		  ?= $(TOP)
+RTL_FILELIST ?= $(RTL_DIR)/rtl.f
+DV_FILELIST  ?= $(DV_DIR)/dv.f
+VERILATOR_FL ?= -f $(DV_DIR)/verilator.f
+MDIR 		 ?= $(TOP)
 
 .PHONY: sim build run lint clean help all
 

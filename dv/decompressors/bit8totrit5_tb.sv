@@ -321,6 +321,11 @@ task automatic test();
     end
 endtask
 
+initial begin : simulation_timeout
+    #10s;
+    $fatal(1, "Simulation timed out at %0t", $time);
+end
+
 initial begin
     $dumpfile("dump.fst");
     $dumpvars;

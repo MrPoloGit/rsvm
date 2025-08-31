@@ -144,6 +144,11 @@ always @(posedge clk_i) begin
     end
 end
 
+initial begin : simulation_timeout
+    #10s;
+    $fatal(1, "Simulation timed out at %0t", $time);
+end
+
 initial begin
     $dumpfile("dump.fst");
     $dumpvars;

@@ -19,7 +19,6 @@ typedef struct packed {
 mul_td vecs [N];
 mul_td expected_q[$];
 int send_idx;
-int cycle_num;
 
 logic                   clk_i;
 logic                   rst_i;
@@ -143,7 +142,6 @@ always @(posedge clk_i) begin
             end
         end
     end
-    cycle_num++;
 end
 
 initial begin

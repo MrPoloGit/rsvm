@@ -21,7 +21,6 @@ logic [2*DataWidth:0] p_q [DataWidth];
 
 logic                 valid_d [DataWidth];
 logic                 valid_q [DataWidth];
-logic [2*DataWidth:0] p_tmp   [DataWidth];
 
 generate
     genvar i;
@@ -30,26 +29,25 @@ generate
             m_d[i]     = m_q[i];
             p_d[i]     = p_q[i];
             valid_d[i] = valid_q[i];
-            p_tmp[i] = '0;
 
             // Only continue the operations if downstream signal that its ready
             if (out_ready_i) begin
                 if (i == 0) begin
                     m_d[i]     = a_i;
-                    p_tmp[i]   = {{(DataWidth+1){1'b0}}, b_i};
+                    p_d[i]   = {{(DataWidth+1){1'b0}}, b_i};
                     if (b_i[0]) begin
-                        p_tmp[i][2*DataWidth:DataWidth] = p_tmp[i][2*DataWidth:DataWidth] + {1'b0, a_i};
+                        p_d[i][2*DataWidth:DataWidth] = p_d[i][2*DataWidth:DataWidth] + {1'b0, a_i};
                     end
-                    p_d[i]     = {1'b0, p_tmp[i][2*DataWidth:1]};
+                    p_d[i]     = {1'b0, p_d[i][2*DataWidth:1]};
                     valid_d[i] = in_valid_i;
                 end else begin
                     m_d[i]     = m_q[i-1];
                     valid_d[i] = valid_q[i-1];
-                    p_tmp[i] = p_q[i-1];
+                    p_d[i] = p_q[i-1];
                     if (p_q[i-1][0]) begin
-                        p_tmp[i][2*DataWidth:DataWidth] = p_q[i-1][2*DataWidth:DataWidth] + {1'b0, m_q[i-1]};
+                        p_d[i][2*DataWidth:DataWidth] = p_q[i-1][2*DataWidth:DataWidth] + {1'b0, m_q[i-1]};
                     end
-                    p_d[i] = {1'b0, p_tmp[i][2*DataWidth:1]};
+                    p_d[i] = {1'b0, p_d[i][2*DataWidth:1]};
                 end
             end
         end

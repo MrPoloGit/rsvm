@@ -1,7 +1,5 @@
 # RSVM: Random System Verilog Modules
 
-will be changing the name to MRSVM, Random System Verilog modules
-
 ## Setup
 ```bash
 # Repository setup

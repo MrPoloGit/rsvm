@@ -1,4 +1,4 @@
-# Custom System Verilog Modules
+# RSVM: Random System Verilog Modules
 
 will be changing the name to MRSVM, Random System Verilog modules
 

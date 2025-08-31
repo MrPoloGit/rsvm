@@ -1,4 +1,4 @@
-# rsvm: Random System Verilog Modules
+# RSVM: Random System Verilog Modules
 
 ## Setup
 ```bash

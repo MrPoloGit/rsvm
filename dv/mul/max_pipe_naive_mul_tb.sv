@@ -1,5 +1,3 @@
-// current issue with when I'm printing is due to me not waiting until send_idx reaching N
-// only should start counting down them
 // issue with out_ready_i = 0, that being if we remove the previous then check again it will be different?
 // maybe store the last output until next out_ready_i = 1
 // maybe do gen_vcs in the main initial begin and then only after it has finished generating the stream
@@ -145,11 +143,8 @@ always @(posedge clk_i) begin
             end
         end
     end
-    // $display("Cycle num: %d", cycle_num);
     cycle_num++;
 end
-
-// always @(posedge clk_i) out_ready_i <= $urandom_range(0,1);
 
 initial begin
     $dumpfile("dump.fst");

@@ -12,8 +12,8 @@ rtl/div/unsigned_div.sv
 rtl/div/signed_div.sv
 
 // Converters
+rtl/FXPtoFP.sv
 // rtl/FPtoFXP.sv
-// rtl/FXPtoFP.sv
 
 // Decompressors
 rtl/decompressors/bit5totrit3.sv

@@ -35,7 +35,7 @@ lint:
 	verilator lint.vlt -f rtl/rtl.f -f dv/dv.f --lint-only -Wno-fatal
 
 clean:
-	rm -rf $(BUILD_DIR) dump.$(WAVE_FORMAT) *.log verilator_dir/
+	rm -rf $(BUILD_DIR) dump.$(WAVE_FORMAT) *.log verilator_dir/ *.txt
 
 help:
 	@echo "Targets:"

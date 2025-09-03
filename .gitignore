@@ -1,3 +1,7 @@
 .vscode/
 dump.fst
 verilator_dir/
+dv/fp_nums.txt
+dv/fxp_table.txt
+fp_sv.txt
+fxptofp_sv.txt

@@ -16,6 +16,7 @@ logic signed [DataWidth-1:0] b_i;
 logic                        out_ready_i;
 logic                        out_valid_o;
 logic signed [DataWidth-1:0] y_o;
+logic signed [DataWidth-1:0] r_o;
 
 signed_div #(
     .DataWidth(DataWidth),
@@ -32,7 +33,8 @@ signed_div #(
 
     .out_ready_i(out_ready_i),
     .out_valid_o(out_valid_o),
-    .y_o(y_o)
+    .y_o(y_o),
+    .r_o(r_o)
 );
 
 function automatic logic signed [DataWidth-1:0] rand_num();
@@ -65,13 +67,15 @@ function automatic logic signed [DataWidth-1:0] expected_div(
     return a / b;
 endfunction
 
-// function automatic logic signed [DataWidth-1:0] expected_remainder(
-//     logic signed [DataWidth-1:0] a,
-//     logic signed [DataWidth-1:0] b
-// );
-
-
-// endfunction
+function automatic logic signed [DataWidth-1:0] expected_remainder(
+    logic signed [DataWidth-1:0] a,
+    logic signed [DataWidth-1:0] b
+);
+    if (b == 0) begin
+        return 0;
+    end
+    return a % b;
+endfunction
 
 task automatic reset();
     rst_i      = 1;
@@ -90,6 +94,9 @@ task automatic test(
     logic signed [DataWidth-1:0] expected_result;
     logic signed [DataWidth-1:0] received_result;
 
+    logic signed [DataWidth-1:0] expected_result_r;
+    logic signed [DataWidth-1:0] received_result_r;
+
     a_i     = a;
     b_i     = b;
     in_valid_i = 1;
@@ -100,14 +107,21 @@ task automatic test(
     out_ready_i = 1;
     wait(out_valid_o); #1ps;
     received_result = y_o;
+    received_result_r = r_o;
     @(posedge clk_i); #1ps;
     out_ready_i = 0;
 
     expected_result = expected_div(a, b);
+    expected_result_r = expected_remainder(a, b);
 
     if (expected_result != received_result) begin
         $display("Mismatch: a=%0d, b=%0d, expected=%0d, received=%0d",
                 a, b, expected_result, received_result
+        );
+    end
+    if (expected_result_r != received_result_r) begin
+        $display("Mismatch: a=%0d, b=%0d, expected_remainder=%0d, received_remainder=%0d",
+                a, b, expected_result_r, received_result_r
         );
     end
 endtask

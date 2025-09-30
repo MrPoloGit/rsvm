@@ -24,7 +24,8 @@ module signed_div #(
 
     output logic                        out_valid_o,
     input  logic                        out_ready_i,
-    output logic signed [DataWidth-1:0] y_o
+    output logic signed [DataWidth-1:0] y_o,
+    output logic signed [DataWidth-1:0] r_o
 );
 
 typedef enum logic[2:0] {
@@ -75,11 +76,13 @@ always_comb begin
             if (in_valid_i) begin
                 // Handling zero cases immediately to save time
                 if (a_i == 0)begin
-                    y_d = '0;
+                    y_d = 0;
+                    remainder_d = 0;
                     state_d = DONE;
                 end else if (b_i == 0) begin
                     if (a_i > 0) y_d = MaxValue;
                     if (a_i < 0) y_d = MinValue;
+                    remainder_d = 0;
                     state_d = DONE;
                 end else begin
                     a_d = {a_i[DataWidth-1], a_i};
@@ -138,6 +141,7 @@ always_comb begin
             // Restore correct sign to which is saved initially
             y_d = quotient_q;
             if (a_sign_q ^ b_sign_q) y_d = -y_d;
+            if (a_sign_q) remainder_d = -remainder_d;
             state_d = DONE;
         end
         DONE: begin
@@ -162,6 +166,7 @@ always_comb begin
 end
 
 assign y_o = y_q;
+assign r_o = remainder_q;
 
 always_ff @(posedge clk_i) begin
     if (rst_i) begin

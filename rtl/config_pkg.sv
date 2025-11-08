@@ -5,15 +5,6 @@ package config_pkg;
 // Ternary Type
 typedef logic signed [1:0] ternary_t;
 
-// Fixed Point format, can be altered
-parameter int FXPPrecision = 8;
-parameter int FXPFraction  = -3;
-
-typedef logic signed [FXPPrecision-1:0] fixed_t;
-
-localparam fixed_t FXPMin = (1 << (FXPPrecision-1));
-localparam fixed_t FXPMax = (FXPMin - 1);
-
 // 32-Bit IEEE-754 Float, can be adjusted to 16-bit IEEE-754 Float or 64-bit IEEE-754 Float
 localparam integer FPBiasedExponent = 8;
 localparam integer FPMantissa = 23;

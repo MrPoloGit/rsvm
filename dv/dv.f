@@ -37,6 +37,3 @@ dv/div/signed_div_tb.sv
 // Decompressors
 dv/decompressors/bit5totrit3_tb.sv
 dv/decompressors/bit8totrit5_tb.sv
-
-// Additional
-dv/FXPtoFP_tb.sv

@@ -1,4 +1,4 @@
-# Skeleton form Ethan Sifferman
+# Skeleton form @sifferman
 name: sim
 on:
   push:
@@ -17,9 +17,6 @@ jobs:
           wget -O - https://raw.githubusercontent.com/sifferman/hdl-tool-installer/main/install | bash -s -- . --oss-cad-suite --zachjs-sv2v
           echo "$GITHUB_WORKSPACE/oss-cad-suite/bin" >> $GITHUB_PATH
           echo "$GITHUB_WORKSPACE/zachjs-sv2v" >> $GITHUB_PATH
-
       - run: make lint
-
-      - run: make sim TOP=signed_div_tb
-
+      - run: make all
       - run: make clean

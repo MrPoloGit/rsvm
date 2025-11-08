@@ -11,10 +11,6 @@ rtl/mul/signed_mul.sv
 rtl/div/unsigned_div.sv
 rtl/div/signed_div.sv
 
-// Converters
-rtl/FXPtoFP.sv
-// rtl/FPtoFXP.sv
-
 // Decompressors
 rtl/decompressors/bit5totrit3.sv
 rtl/decompressors/bit8totrit5.sv

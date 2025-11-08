@@ -3,7 +3,7 @@
 ## Setup
 ```bash
 # Repository setup
-git clone git@github.com:MrPoloGit/custom_sv_modules.git
+git clone git@github.com:MrPoloGit/rsvm.git
 
 # Include third party modules
 git submodule update --init --recursive

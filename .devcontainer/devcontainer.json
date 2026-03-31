@@ -1,18 +1,23 @@
 {
   "build": { "dockerfile": "Dockerfile" },
-  "features": {},
+  "features": {
+    "ghcr.io/devcontainers/features/desktop-lite:1": {}
+  },
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "desktop"
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [
-        "streetsidesoftware.code-spell-checker",
-        "AndrewNolte.vscode-system-verilog",
-        "hediet.vscode-drawio",
         "surfer-project.surfer",
-        "stephanvs.dot",
-        "tomoki1207.pdf",
-        "danielroedl.meld-diff",
-        "bmpenuelas.waveform-render",
-        "SimonSiefke.svg-preview"
+        "GitHub.vscode-github-actions",
+        "technosophos.vscode-make",
+        "rashwell.tcl",
+        "mshr-h.veriloghdl",
+        "ms-python.python"
       ]
     }
   }

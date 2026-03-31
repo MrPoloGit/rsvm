@@ -1,55 +1,53 @@
-# Use Alpine (musl). 
-# FROM alpine:3.14
 
-FROM ghcr.io/ucsc-cse-x25/dockerimages:base
+FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu
 
 ENV LANG C.UTF-8
-ARG INSTALL_ZSH="true"
+ARG INSTALL_ZSH="true" 
+ARG TARGETARCH
 
-# # Basic deps + Python + dev tools + glibc-compat + bash (the installer uses bash)
-# RUN apk add --no-cache \
-#       bash \
-#       coreutils \
-#       findutils \
-#       grep \
-#       sed \
-#       gawk \
-#       make \
-#       git \
-#       wget \
-#       curl \
-#       ca-certificates \
-#       tar \
-#       xz \
-#       unzip \
-#       gzip \
-#       patchelf \
-#       libc6-compat \
-#       gcompat \
-#       shadow \
-#       sudo \
-#       python3 \
-#       py3-pip \
-#       python3-dev \
-#       build-base
+RUN apt-get update
+RUN apt-get -y install \
+    wget \
+    unzip \
+    curl \
+    git \
+    build-essential \
+    libgmp-dev \
+    default-jre \
+    gnupg \
+    ca-certificates \
+    python3 \
+    python3-pip
 
-# Where we’ll install the HDL tools so PATH can be set globally
-ENV TOOL_DIR=/opt/tools
-RUN mkdir -p ${TOOL_DIR}
-WORKDIR ${TOOL_DIR}
+#install oss-cad-suite
+RUN cd /opt && \
+    wget https://github.com/YosysHQ/oss-cad-suite-build/releases/download/2024-11-21/oss-cad-suite-linux-x64-20241121.tgz && \
+    tar -xf oss-cad-suite-linux-x64-20241121.tgz && \
+    rm oss-cad-suite-linux-x64-20241121.tgz
+    
+ENV PATH="/opt/oss-cad-suite/bin:${PATH}"
 
-# Install OSS CAD Suite and zachjs/sv2v using the provided installer
-RUN wget -O - https://raw.githubusercontent.com/sifferman/hdl-tool-installer/main/install \
-    | bash -s -- . --oss-cad-suite --zachjs-sv2v
+# install sv2v
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        echo "Installing prebuilt sv2v (amd64)"; \
+        cd /opt && \
+        wget https://github.com/zachjs/sv2v/releases/download/v0.0.13/sv2v-Linux.zip && \
+        unzip sv2v-Linux.zip && \
+        rm sv2v-Linux.zip; \
+    else \
+        echo "Building sv2v from source (arm64)"; \
+        curl -sSL https://get.haskellstack.org/ | sh && \
+        cd /opt && \
+        git clone https://github.com/zachjs/sv2v.git && \
+        cd sv2v && \
+        make; \
+    fi
 
-# Make them available on PATH for all users/shells
-ENV PATH="${TOOL_DIR}/oss-cad-suite/bin:${TOOL_DIR}/zachjs-sv2v:${PATH}"
+ENV PATH="/opt/sv2v-Linux:${PATH}"
+ENV PATH="/opt/sv2v/bin:${PATH}"
 
-# Nice-to-have: keep pip modern + don’t cache wheels to save space
-RUN python3 -m pip install --no-cache-dir --upgrade pip
+RUN python3 -m pip install --no-cache-dir --break-system-packages \
+        numpy==2.4.3 \
+        cocotb==2.0.1 \
 
-# Default workspace path Codespaces uses
-WORKDIR /workspaces
-
-# Switch to the non-root user by default
 USER vscode

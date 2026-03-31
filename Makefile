@@ -31,15 +31,6 @@ sim:
 	make build 
 	make run
 
-sim-all:
-	$(MAKE) sim TOP=naive_mul_tb
-	$(MAKE) sim TOP=naive_signed_mul_tb
-	$(MAKE) sim TOP=max_pipe_naive_mul_tb
-	$(MAKE) sim TOP=signed_mul_t
-	$(MAKE) sim TOP=signed_div_tb
-	$(MAKE) sim TOP=bit5totrit3_tb
-	$(MAKE) sim TOP=bit8totrit5_tb
-
 lint:
 	verilator lint.vlt -f rtl/rtl.f -f dv/dv.f --lint-only -Wno-fatal
 
